@@ -5,20 +5,22 @@ defmodule Wtt.Player do
   @registry Wtt.Registry.Board
   @board_size Application.get_env(:wtt, :board_size)
 
-  def start_link(name) do
-    GenServer.start_link(__MODULE__, name)
+  def start_link(name, tile \\ &random_tile/0) when is_function(tile, 0) do
+    GenServer.start_link(__MODULE__, [name, tile])
   end
 
   @impl true
-  def init(name) do
-    pos = random_tile()
-    {:ok, _} = Registry.register(@registry, pos, [])
+  def init([name, tile]) do
+    pos = tile.()
+    {:ok, _} = Registry.register(@registry, name, [])
+    {:ok, _} = Registry.register(@registry, pos, %{name: name, status: :alive})
+
     {:ok, %{name: name, pos: pos, status: :alive}}
   end
 
   @impl true
-  def handle_call(:get_state, _from, state = %{name: name, status: status}) do
-    {:reply, {name, status}, state}
+  def handle_call(_msg, _from, state) do
+    {:reply, :ok, state}
   end
 
   @impl true

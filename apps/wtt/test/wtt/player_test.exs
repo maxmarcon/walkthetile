@@ -20,16 +20,16 @@ defmodule Wtt.PlayerTest do
       [player_pid: pid]
     end
 
-    test "is registered on a tile", %{player_pid: pid} do
-      [{{x, y}, ^pid, []}] =
-        Registry.select(@registry, [{{:"$1", :"$2", :"$3"}, [], [{{:"$1", :"$2", :"$3"}}]}])
+    test "is registered on a tile with correct name and status", %{player_pid: pid} do
+      [{{x, y}, ^pid, %{name: @player1, status: :alive}}] =
+        Registry.select(@registry, [{{:"$1", :"$2", :"$3"}, [{:==, :"$3", %{name: @player1, status: :alive}}], [{{:"$1", :"$2", :"$3"}}]}])
 
       assert x >= 1 && x <= @board_size
       assert y >= 1 && y <= @board_size
     end
 
-    test "is alive and has the correct name", %{player_pid: pid} do
-      assert {@player1, :alive} == GenServer.call(pid, :get_state)
+    test "is registered by name", %{player_pid: pid} do
+      [{pid, []}] = Registry.lookup(@registry, @player1)
     end
   end
 end
