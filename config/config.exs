@@ -9,23 +9,37 @@
 # move said applications out of the umbrella.
 use Mix.Config
 
-
+config :wtt,
+  wall_prob: 0.1,
+  board_size: 10
 
 config :wtt_web,
-  generators: [context_app: :wtt]
+  generators: [
+    context_app: :wtt
+  ]
 
 # Configures the endpoint
-config :wtt_web, WttWeb.Endpoint,
-  url: [host: "localhost"],
-  secret_key_base: "e0lu6OUcQZ9Avy2be9CBkEAXkOCPRKg/wXXwH6M5kLMMMQqyvjFJwlKeN/oIEbr1",
-  render_errors: [view: WttWeb.ErrorView, accepts: ~w(html json), layout: false],
-  pubsub_server: Wtt.PubSub,
-  live_view: [signing_salt: "oQtxzHYb"]
+config :wtt_web,
+       WttWeb.Endpoint,
+       url: [
+         host: "localhost"
+       ],
+       secret_key_base: "e0lu6OUcQZ9Avy2be9CBkEAXkOCPRKg/wXXwH6M5kLMMMQqyvjFJwlKeN/oIEbr1",
+       render_errors: [
+         view: WttWeb.ErrorView,
+         accepts: ~w(html json),
+         layout: false
+       ],
+       pubsub_server: Wtt.PubSub,
+       live_view: [
+         signing_salt: "oQtxzHYb"
+       ]
 
 # Configures Elixir's Logger
-config :logger, :console,
-  format: "$time $metadata[$level] $message\n",
-  metadata: [:request_id]
+config :logger,
+       :console,
+       format: "$time $metadata[$level] $message\n",
+       metadata: [:request_id]
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason

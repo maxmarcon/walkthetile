@@ -1,4 +1,5 @@
 defmodule Wtt.Application do
+  import Wtt.Board
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   @moduledoc false
@@ -7,12 +8,15 @@ defmodule Wtt.Application do
 
   def start(_type, _args) do
     children = [
-      # Start the PubSub system
-      {Phoenix.PubSub, name: Wtt.PubSub}
-      # Start a worker by calling: Wtt.Worker.start_link(arg)
-      # {Wtt.Worker, arg}
+      {Registry, keys: :duplicate, meta: board_registry_metadata(), name: Wtt.Registry.Board}
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one, name: Wtt.Supervisor)
+  end
+
+  defp board_registry_metadata() do
+    [
+      walls: generate_walls()
+    ]
   end
 end
