@@ -6,6 +6,7 @@ defmodule Wtt.Player do
 
   @registry Wtt.Registry.Board
   @board_size Application.get_env(:wtt, :board_size)
+  @msec_to_live_after_killed 5000
 
   def start_link(name, initial_tile \\ &random_tile/0) when is_function(initial_tile, 0) do
     GenServer.start_link(__MODULE__, [name, initial_tile], name: {:global, name})
@@ -52,8 +53,7 @@ defmodule Wtt.Player do
 
     {:ok, death_task} =
       Task.start_link(fn ->
-        Process.sleep(5000)
-        Process.exit(self(), :normal)
+        Process.sleep(@msec_to_live_after_killed)
       end)
 
     death_task_ref = Process.monitor(death_task)
