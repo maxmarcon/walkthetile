@@ -8,12 +8,15 @@ defmodule Wtt.Player do
   @board_size Application.get_env(:wtt, :board_size)
 
   def start_link(name, initial_tile \\ &random_tile/0) when is_function(initial_tile, 0) do
-    GenServer.start_link(__MODULE__, [name, initial_tile])
+    GenServer.start_link(__MODULE__, [name, initial_tile], name: {:global, name})
+  end
+
+  def move(name, dir) when dir in [:left, :right, :up, :down] do
+    GenServer.call({:global, name}, dir)
   end
 
   @impl true
   def init([name, initial_tile]) when is_function(initial_tile) do
-    {:ok, _} = register(@registry, name, [])
     {:ok, move_to_initial_pos(initial_tile.(), %{name: name, status: :alive})}
   end
 
@@ -43,27 +46,24 @@ defmodule Wtt.Player do
   end
 
   defp move_to_new_pos(new_pos, state = %{name: name, status: status, pos: pos}) do
-    new_pos =
-      if valid_position?(new_pos) do
-        new_pos
-      else
-        pos
-      end
-
-    :ok = unregister(@registry, pos)
-    {:ok, _} = register(@registry, new_pos, %{name: name, status: status})
-    %{state | pos: new_pos}
+    if valid_position?(new_pos) do
+      :ok = unregister(@registry, pos)
+      {:ok, _} = register(@registry, new_pos, %{name: name, status: status})
+      %{state | pos: new_pos}
+    else
+      state
+    end
   end
 
   defp move_to_initial_pos(new_pos, state = %{name: name, status: status}) do
     {:ok, _} = register(@registry, new_pos, %{name: name, status: status})
     Map.put(state, :pos, new_pos)
   end
-  
-  defp valid_position?({x, y}) do
-    x >= 1 && x <= @board_size && y >= 1 && y <= @board_size
+
+  defp valid_position?({x, y} = pos) do
+    x >= 1 && x <= @board_size && y >= 1 && y <= @board_size && !(pos in walls())
   end
-  
+
   defp random_tile() do
     random_tile(walls())
   end

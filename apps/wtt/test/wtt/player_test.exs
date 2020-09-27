@@ -6,21 +6,25 @@ defmodule Wtt.PlayerTest do
   @registry Wtt.Registry.Board
   @board_size Application.get_env(:wtt, :board_size)
 
-  use ExUnit.Case, async: true
+  use ExUnit.Case
 
-  test "start_link/2" do
+  test "start_link/2 can start player" do
     assert {:ok, _} = Player.start_link(@player1)
   end
 
-  describe "after player has started" do
+  describe "after player has been created" do
     setup do
-      {:ok, pid} = Player.start_link(@player1)
+      {:ok, _} = Player.start_link(@player1)
 
-      [player_pid: pid]
+      :ok
     end
 
-    test "is registered on a random tile with correct name and status", %{player_pid: pid} do
-      [{{x, y}, ^pid, %{name: @player1, status: :alive}}] =
+    test "start_link/2 fails for player with same name" do
+      assert {:error, {:already_started, _}} = Player.start_link(@player1)
+    end
+
+    test "player is registered on a tile with correct name and status" do
+      [{{x, y}, _, %{name: @player1, status: :alive}}] =
         Registry.select(
           @registry,
           [
@@ -35,17 +39,13 @@ defmodule Wtt.PlayerTest do
       assert x >= 1 && x <= @board_size
       assert y >= 1 && y <= @board_size
     end
-
-    test "is registered by name", %{player_pid: pid} do
-      assert [{pid, []}] == Registry.lookup(@registry, @player1)
-    end
   end
 
   describe "a player located in the center of the board" do
     setup do
-      {:ok, pid} = Player.start_link(@player1, fn -> {5, 5} end)
+      {:ok, _} = Player.start_link(@player1, fn -> {5, 5} end)
 
-      [player_pid: pid]
+      :ok
     end
 
     values = [
@@ -59,12 +59,12 @@ defmodule Wtt.PlayerTest do
       @dir dir
       @initial_pos initial_pos
       @expected_pos expected_pos
-      test "can move #{dir}", %{player_pid: pid} do
-        :ok = GenServer.call(pid, @dir)
+      test "can move #{dir}" do
+        :ok = Player.move(@player1, @dir)
 
         assert [] = Registry.lookup(@registry, @initial_pos)
 
-        assert [{pid, %{name: @player1, status: :alive}}] =
+        assert [{_, %{name: @player1, status: :alive}}] =
                  Registry.lookup(@registry, @expected_pos)
       end
     end
@@ -82,12 +82,41 @@ defmodule Wtt.PlayerTest do
       @dir dir
       @initial_pos initial_pos
       test "can't move #{dir} from the #{desc} edge" do
-        {:ok, pid} = Player.start_link(@player1, fn -> @initial_pos end)
+        {:ok, _} = Player.start_link(@player1, fn -> @initial_pos end)
 
-        :ok = GenServer.call(pid, @dir)
+        :ok = Player.move(@player1, @dir)
 
-        assert [{pid, %{name: @player1, status: :alive}}] =
-                 Registry.lookup(@registry, @initial_pos)
+        assert [{_, %{name: @player1, status: :alive}}] = Registry.lookup(@registry, @initial_pos)
+      end
+    end
+  end
+
+  describe "a player located next to a wall" do
+    values = [
+      [{5, 6}, :up],
+      [{5, 4}, :down],
+      [{4, 5}, :left],
+      [{6, 5}, :right]
+    ]
+
+    setup do
+      {:ok, _} = Player.start_link(@player1, fn -> {5, 5} end)
+
+      :ok
+    end
+
+    for [wall_pos, dir] <- values do
+      @wall_pos wall_pos
+      @dir dir
+      test "can't move #{dir} through the wall" do
+        :ok = Registry.put_meta(@registry, :walls, [@wall_pos])
+
+        :ok = Player.move(@player1, @dir)
+
+        assert [] = Registry.lookup(@registry, @wall_pos)
+        assert [{_, %{name: @player1, status: :alive}}] = Registry.lookup(@registry, {5, 5})
+
+        :ok = Registry.put_meta(@registry, :walls, [])
       end
     end
   end
