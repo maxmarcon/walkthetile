@@ -15,4 +15,13 @@ defmodule Wtt.Board do
       end)
     end)
   end
+
+  def random_tile(walls) do
+    1..@board_size
+    |> Stream.flat_map(fn x ->
+      1..@board_size |> Stream.map(&{x, &1})
+    end)
+    |> Stream.reject(&(&1 in walls))
+    |> Enum.random()
+  end
 end
