@@ -24,17 +24,17 @@ defmodule Wtt.PlayerTest do
     end
 
     test "player is registered on a tile with correct name and status" do
-      [{{x, y}, _, %{name: @player1, status: :alive}}] =
-        Registry.select(
-          @registry,
-          [
-            {
-              {:"$1", :"$2", :"$3"},
-              [{:==, :"$3", %{name: @player1, status: :alive}}],
-              [{{:"$1", :"$2", :"$3"}}]
-            }
-          ]
-        )
+      assert [{{x, y}, _, %{name: @player1, status: :alive}}] =
+               Registry.select(
+                 @registry,
+                 [
+                   {
+                     {:"$1", :"$2", :"$3"},
+                     [{:==, :"$3", %{name: @player1, status: :alive}}],
+                     [{{:"$1", :"$2", :"$3"}}]
+                   }
+                 ]
+               )
 
       assert x >= 1 && x <= @board_size
       assert y >= 1 && y <= @board_size
@@ -55,17 +55,17 @@ defmodule Wtt.PlayerTest do
       [:right, {5, 5}, {6, 5}]
     ]
 
-    for [dir, initial_pos, expected_pos] <- values do
+    for [dir, initial_tile, expected_tile] <- values do
       @dir dir
-      @initial_pos initial_pos
-      @expected_pos expected_pos
+      @initial_tile initial_tile
+      @expected_tile expected_tile
       test "can move #{dir}" do
         :ok = Player.move(@player1, @dir)
 
-        assert [] = Registry.lookup(@registry, @initial_pos)
+        assert [] = Registry.lookup(@registry, @initial_tile)
 
         assert [{_, %{name: @player1, status: :alive}}] =
-                 Registry.lookup(@registry, @expected_pos)
+                 Registry.lookup(@registry, @expected_tile)
       end
     end
   end
@@ -78,15 +78,16 @@ defmodule Wtt.PlayerTest do
       ["rightmost", {10, 5}, :right]
     ]
 
-    for [desc, initial_pos, dir] <- values do
+    for [desc, initial_tile, dir] <- values do
       @dir dir
-      @initial_pos initial_pos
+      @initial_tile initial_tile
       test "can't move #{dir} from the #{desc} edge" do
-        {:ok, _} = Player.start_link(@player1, fn -> @initial_pos end)
+        {:ok, _} = Player.start_link(@player1, fn -> @initial_tile end)
 
         :ok = Player.move(@player1, @dir)
 
-        assert [{_, %{name: @player1, status: :alive}}] = Registry.lookup(@registry, @initial_pos)
+        assert [{_, %{name: @player1, status: :alive}}] =
+                 Registry.lookup(@registry, @initial_tile)
       end
     end
   end
@@ -105,19 +106,48 @@ defmodule Wtt.PlayerTest do
       :ok
     end
 
-    for [wall_pos, dir] <- values do
-      @wall_pos wall_pos
+    for [wall_tile, dir] <- values do
+      @wall_tile wall_tile
       @dir dir
       test "can't move #{dir} through the wall" do
-        :ok = Registry.put_meta(@registry, :walls, [@wall_pos])
+        :ok = Registry.put_meta(@registry, :walls, [@wall_tile])
 
         :ok = Player.move(@player1, @dir)
 
-        assert [] = Registry.lookup(@registry, @wall_pos)
+        assert [] = Registry.lookup(@registry, @wall_tile)
         assert [{_, %{name: @player1, status: :alive}}] = Registry.lookup(@registry, {5, 5})
 
         :ok = Registry.put_meta(@registry, :walls, [])
       end
+    end
+  end
+
+  describe "after killing a player" do
+    setup do
+      {:ok, _} = Player.start_link(@player1, fn -> {5, 5} end)
+
+      :ok = Player.kill(@player1)
+    end
+
+    test "the player is dead" do
+      assert %{name: @player1, status: :dead, tile: {5, 5}, death_task_ref: _} =
+               :sys.get_state({:global, @player1})
+
+      assert [{_, %{name: @player1, status: :dead}}] = Registry.lookup(@registry, {5, 5})
+    end
+
+    test "the player cannot be moved" do
+      :ok = Player.move(@player1, :up)
+
+      assert [] = Registry.lookup(@registry, {5, 6})
+      assert [{_, %{name: @player1, status: :dead}}] = Registry.lookup(@registry, {5, 5})
+    end
+
+    test "the player process dies after about 5 seconds" do
+      Process.sleep(5010)
+
+      assert [] == Registry.lookup(@registry, {5, 5})
+      assert :undefined == :global.whereis_name(@player1)
     end
   end
 end
