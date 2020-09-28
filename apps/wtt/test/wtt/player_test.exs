@@ -8,13 +8,6 @@ defmodule Wtt.PlayerTest do
   @board_size Application.get_env(:wtt, :board_size)
 
   use ExUnit.Case
-
-  defp player_spec([name, initial_tile]) do 
-    %{
-      id: name,
-      start: {Player, :start_link, [name, initial_tile]}
-    }
-  end
   
   test "player can be started" do
     assert {:ok, _} = start_supervised({Player, @player1})
@@ -51,7 +44,7 @@ defmodule Wtt.PlayerTest do
 
   describe "a player located in the center of the board" do
     setup do
-      {:ok, _} = start_supervised(player_spec([@player1, fn -> {5, 5} end]))
+      {:ok, _} = start_supervised(Player, [@player1, fn -> {5, 5} end])
 
       :ok
     end
@@ -90,7 +83,7 @@ defmodule Wtt.PlayerTest do
       @dir dir
       @initial_tile initial_tile
       test "can't move #{dir} from the #{desc} edge" do
-        {:ok, _} = start_supervised(player_spec([@player1, fn -> @initial_tile end]))
+        {:ok, _} = start_supervised({Player, [@player1, fn -> @initial_tile end]})
 
         :ok = Player.move(@player1, @dir)
 
@@ -109,7 +102,7 @@ defmodule Wtt.PlayerTest do
     ]
 
     setup do
-      {:ok, _} = start_supervised(player_spec([@player1, fn -> {5,5} end]))
+      {:ok, _} = start_supervised({Player, [@player1, fn -> {5,5} end]})
 
       :ok
     end
@@ -132,7 +125,7 @@ defmodule Wtt.PlayerTest do
 
   describe "after killing a player" do
     setup do
-      {:ok, pid} = start_supervised(player_spec([@player1, fn -> {5,5} end]) |> Map.put(:restart, :temporary))
+      {:ok, pid} = start_supervised({Player, [@player1, fn -> {5,5} end]}) |> Map.put(:restart, :temporary)
 
       :ok = Player.kill(pid)
 
@@ -179,10 +172,10 @@ defmodule Wtt.PlayerTest do
     ]
 
     setup do
-      {:ok, _} = start_supervised(player_spec([@player1, fn -> {5,5} end]))
+      {:ok, _} = start_supervised({Player, [@player1, fn -> {5,5} end]})
 
       for [name, initial_tile, _] <- @opponent_players do
-        {:ok, _} =start_supervised(player_spec([name, fn -> initial_tile end]))
+        {:ok, _} =start_supervised({Player, [name, fn -> initial_tile end]})
       end
 
       :ok = Player.attack(@player1)

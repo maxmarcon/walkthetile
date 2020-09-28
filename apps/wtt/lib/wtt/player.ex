@@ -2,7 +2,6 @@ defmodule Wtt.Player do
   @moduledoc false
   use GenServer
   import Wtt.Board
-  import Registry
 
   @registry Wtt.Registry.Board
   @board_size Application.get_env(:wtt, :board_size)
@@ -22,6 +21,17 @@ defmodule Wtt.Player do
 
   def attack(name) do
     GenServer.call({:global, name}, :attack)
+  end
+  
+  def child_spec([name | _] = args) do
+    %{
+      id: name,
+      start: {Player, :start_link, args}
+    }
+  end
+  
+  def child_spec(name) do 
+    child_spec([name])
   end
 
   @impl true
@@ -65,8 +75,8 @@ defmodule Wtt.Player do
   @impl true
   def handle_cast(:kill, state = %{tile: tile}) do
     new_state = %{state | status: :dead}
-    :ok = unregister(@registry, tile)
-    {:ok, _} = register(@registry, tile, Map.delete(new_state, :tile))
+    :ok = Registry.register(@registry, tile)
+    {:ok, _} = Registry.register(@registry, tile, Map.delete(new_state, :tile))
 
     {:ok, death_task} =
       Task.start_link(fn ->
@@ -87,8 +97,8 @@ defmodule Wtt.Player do
 
   defp move_to_new_tile(new_tile, state = %{name: name, status: status, tile: tile}) do
     if valid_tile?(new_tile) && status == :alive do
-      :ok = unregister(@registry, tile)
-      {:ok, _} = register(@registry, new_tile, %{name: name, status: status})
+      :ok = Registry.unregister(@registry, tile)
+      {:ok, _} = Registry.register(@registry, new_tile, %{name: name, status: status})
       %{state | tile: new_tile}
     else
       state
@@ -96,7 +106,7 @@ defmodule Wtt.Player do
   end
 
   defp move_to_initial_tile(new_tile, state = %{name: name, status: status}) do
-    {:ok, _} = register(@registry, new_tile, %{name: name, status: status})
+    {:ok, _} = Registry.register(@registry, new_tile, %{name: name, status: status})
     Map.put(state, :tile, new_tile)
   end
 
@@ -109,7 +119,7 @@ defmodule Wtt.Player do
   end
 
   defp walls() do
-    {:ok, walls} = meta(@registry, :walls)
+    {:ok, walls} = Registry.meta(@registry, :walls)
     walls
   end
 end
