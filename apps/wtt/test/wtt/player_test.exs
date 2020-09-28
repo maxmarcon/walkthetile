@@ -9,18 +9,25 @@ defmodule Wtt.PlayerTest do
 
   use ExUnit.Case
 
-  test "start_link/2 can start player" do
-    assert {:ok, _} = Player.start_link(@player1)
+  defp player_spec([name, initial_tile]) do 
+    %{
+      id: name,
+      start: {Player, :start_link, [name, initial_tile]}
+    }
+  end
+  
+  test "player can be started" do
+    assert {:ok, _} = start_supervised({Player, @player1})
   end
 
-  describe "after player has been created" do
+  describe "after player has been started" do
     setup do
-      {:ok, _} = Player.start_link(@player1)
+      {:ok, _} = start_supervised({Player, @player1})
 
       :ok
     end
 
-    test "start_link/2 fails for player with same name" do
+    test "no second player with the same name can be started" do
       assert {:error, {:already_started, _}} = Player.start_link(@player1)
     end
 
@@ -44,7 +51,7 @@ defmodule Wtt.PlayerTest do
 
   describe "a player located in the center of the board" do
     setup do
-      {:ok, _} = Player.start_link(@player1, fn -> {5, 5} end)
+      {:ok, _} = start_supervised(player_spec([@player1, fn -> {5, 5} end]))
 
       :ok
     end
@@ -83,7 +90,7 @@ defmodule Wtt.PlayerTest do
       @dir dir
       @initial_tile initial_tile
       test "can't move #{dir} from the #{desc} edge" do
-        {:ok, _} = Player.start_link(@player1, fn -> @initial_tile end)
+        {:ok, _} = start_supervised(player_spec([@player1, fn -> @initial_tile end]))
 
         :ok = Player.move(@player1, @dir)
 
@@ -102,7 +109,7 @@ defmodule Wtt.PlayerTest do
     ]
 
     setup do
-      {:ok, _} = Player.start_link(@player1, fn -> {5, 5} end)
+      {:ok, _} = start_supervised(player_spec([@player1, fn -> {5,5} end]))
 
       :ok
     end
@@ -125,7 +132,7 @@ defmodule Wtt.PlayerTest do
 
   describe "after killing a player" do
     setup do
-      {:ok, pid} = Player.start_link(@player1, fn -> {5, 5} end)
+      {:ok, pid} = start_supervised(player_spec([@player1, fn -> {5,5} end]) |> Map.put(:restart, :temporary))
 
       :ok = Player.kill(pid)
 
@@ -172,10 +179,10 @@ defmodule Wtt.PlayerTest do
     ]
 
     setup do
-      {:ok, _} = Player.start_link(@player1, fn -> {5, 5} end)
+      {:ok, _} = start_supervised(player_spec([@player1, fn -> {5,5} end]))
 
       for [name, initial_tile, _] <- @opponent_players do
-        {:ok, _} = Player.start_link(name, fn -> initial_tile end)
+        {:ok, _} =start_supervised(player_spec([name, fn -> initial_tile end]))
       end
 
       :ok = Player.attack(@player1)

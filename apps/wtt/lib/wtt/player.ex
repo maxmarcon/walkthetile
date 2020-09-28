@@ -4,15 +4,10 @@ defmodule Wtt.Player do
   import Wtt.Board
   import Registry
 
-  @player_supervisor Wtt.PlayerSupervisor
   @registry Wtt.Registry.Board
   @board_size Application.get_env(:wtt, :board_size)
   @msec_to_live_after_killed 5000
 
-  def ensure_player_started(name) do 
-    DynamicSupervisor.start_child(@player_supervisor, {__MODULE__, name})
-  end
-  
   def start_link(name, initial_tile \\ &random_tile/0) when is_function(initial_tile, 0) do
     GenServer.start_link(__MODULE__, [name, initial_tile], name: {:global, name})
   end
