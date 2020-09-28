@@ -3,6 +3,7 @@ defmodule Wtt.PlayerTest do
   alias Wtt.Player
 
   @player1 "player_1"
+
   @registry Wtt.Registry.Board
   @board_size Application.get_env(:wtt, :board_size)
 
@@ -124,14 +125,15 @@ defmodule Wtt.PlayerTest do
 
   describe "after killing a player" do
     setup do
-      {:ok, _} = Player.start_link(@player1, fn -> {5, 5} end)
+      {:ok, pid} = Player.start_link(@player1, fn -> {5, 5} end)
 
-      :ok = Player.kill(@player1)
+      :ok = Player.kill(pid)
+
+      :ok
     end
 
     test "the player is dead" do
-      assert %{name: @player1, status: :dead, tile: {5, 5}, death_task_ref: _} =
-               :sys.get_state({:global, @player1})
+      assert %{name: @player1, status: :dead, tile: {5, 5}} = :sys.get_state({:global, @player1})
 
       assert [{_, %{name: @player1, status: :dead}}] = Registry.lookup(@registry, {5, 5})
     end
@@ -148,6 +150,61 @@ defmodule Wtt.PlayerTest do
 
       assert [] == Registry.lookup(@registry, {5, 5})
       assert :undefined == :global.whereis_name(@player1)
+    end
+  end
+
+  describe "when the player at position {5,5} attacks" do
+    @opponent_players [
+      ["player_2", {5, 5}, true],
+      ["player_3", {4, 5}, true],
+      ["player_4", {6, 5}, true],
+      ["player_5", {5, 6}, true],
+      ["player_6", {5, 6}, true],
+      ["player_7", {5, 4}, true],
+      ["player_8", {4, 6}, true],
+      ["player_9", {4, 6}, true],
+      ["player_10", {4, 4}, true],
+      ["player_11", {6, 4}, true],
+      ["player_12", {6, 6}, true],
+      ["player_13", {3, 5}, false],
+      ["player_14", {7, 5}, false],
+      ["player_15", {7, 6}, false]
+    ]
+
+    setup do
+      {:ok, _} = Player.start_link(@player1, fn -> {5, 5} end)
+
+      for [name, initial_tile, _] <- @opponent_players do
+        {:ok, _} = Player.start_link(name, fn -> initial_tile end)
+      end
+
+      :ok = Player.attack(@player1)
+
+      :ok
+    end
+
+    test "the player didn't kill itself" do
+      assert %{name: @player1, status: :alive, tile: {5, 5}} = :sys.get_state({:global, @player1})
+    end
+
+    for [name, position, in_range] <- @opponent_players, in_range do
+      @name name
+      @position position
+      test "player #{name} at position #{inspect(position)} is dead" do
+        assert %{name: @name, status: :dead, tile: @position} = :sys.get_state({:global, @name})
+
+        assert Registry.match(@registry, @position, %{name: @name, status: :dead}) |> Enum.any?()
+      end
+    end
+
+    for [name, position, in_range] <- @opponent_players, !in_range do
+      @name name
+      @position position
+      test "player #{name} at position #{inspect(position)} is alive" do
+        assert %{name: @name, status: :alive, tile: @position} = :sys.get_state({:global, @name})
+
+        assert Registry.match(@registry, @position, %{name: @name, status: :alive}) |> Enum.any?()
+      end
     end
   end
 end

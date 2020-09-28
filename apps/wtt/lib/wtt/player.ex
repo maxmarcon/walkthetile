@@ -16,8 +16,12 @@ defmodule Wtt.Player do
     GenServer.call({:global, name}, dir)
   end
 
-  def kill(name) do
-    GenServer.cast({:global, name}, :kill)
+  def kill(pid) do
+    GenServer.cast(pid, :kill)
+  end
+
+  def attack(name) do
+    GenServer.call({:global, name}, :attack)
   end
 
   @impl true
@@ -43,6 +47,19 @@ defmodule Wtt.Player do
   @impl true
   def handle_call(:right, _from, state = %{tile: {x, y}}) do
     {:reply, :ok, move_to_new_tile({x + 1, y}, state)}
+  end
+
+  @impl true
+  def handle_call(:attack, _from, state = %{tile: {x, y}}) do
+    for tx <- [x, x + 1, x - 1] do
+      for ty <- [y, y + 1, y - 1] do
+        for {pid, _} <- Registry.lookup(@registry, {tx, ty}), pid != self() do
+          :ok = __MODULE__.kill(pid)
+        end
+      end
+    end
+
+    {:reply, :ok, state}
   end
 
   @impl true
