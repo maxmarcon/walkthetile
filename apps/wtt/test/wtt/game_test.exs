@@ -63,8 +63,8 @@ defmodule Wtt.GameTest do
       board = Game.retrieve_board_status()
       assert is_list(board)
 
-      %{walls: walls, players: players, tile: tile} =
-        for tile <- board, reduce: %{players: [], walls: 0, tile: []} do
+      %{walls: walls, players: players, tiles: tiles} =
+        for tile <- board, reduce: %{players: [], walls: 0, tiles: []} do
           acc ->
             assert %{tile: {x, y} = tile, players: players, wall: wall} = tile
             assert is_list(players)
@@ -74,7 +74,7 @@ defmodule Wtt.GameTest do
             assert !wall || Enum.empty?(players)
 
             acc
-            |> Map.update!(:tile, &[tile | &1])
+            |> Map.update!(:tiles, &[tile | &1])
             |> Map.update!(:players, &(players ++ &1))
             |> Map.update!(
               :walls,
@@ -87,7 +87,7 @@ defmodule Wtt.GameTest do
             )
         end
 
-      assert length(Enum.uniq(tile)) == length(tile)
+      assert length(Enum.uniq(tiles)) == length(tiles)
       assert walls == 3
       assert length(players) == @nof_players
 
