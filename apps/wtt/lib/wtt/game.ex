@@ -7,7 +7,7 @@ defmodule Wtt.Game do
   @type player_status() :: %{name: binary(), status: :alive | :dead}
 
   @type board_elem() :: %{
-          pos: Board.tile(),
+          tile: Board.tile(),
           players: [player_status()],
           wall: boolean()
         }
@@ -28,11 +28,11 @@ defmodule Wtt.Game do
   def retrieve_board_status() do
     {:ok, walls} = Registry.meta(@registry, :walls)
 
-    Registry.select(@registry, [{{:"$1", :_, :"$3"}, [], [%{pos: :"$1", player: :"$3"}]}])
-    |> Enum.reduce(%{}, fn %{pos: pos, player: player}, acc ->
-      Map.update(acc, pos, [player], &[player | &1])
+    Registry.select(@registry, [{{:"$1", :_, :"$3"}, [], [%{tile: :"$1", player: :"$3"}]}])
+    |> Enum.reduce(%{}, fn %{tile: tile, player: player}, acc ->
+      Map.update(acc, tile, [player], &[player | &1])
     end)
-    |> Enum.map(fn {pos, players} -> %{pos: pos, players: players, wall: false} end)
-    |> Enum.concat(Enum.map(walls, &%{pos: &1, players: [], wall: true}))
+    |> Enum.map(fn {tile, players} -> %{tile: tile, players: players, wall: false} end)
+    |> Enum.concat(Enum.map(walls, &%{tile: &1, players: [], wall: true}))
   end
 end
