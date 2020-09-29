@@ -4,6 +4,9 @@ defmodule Wtt.Board do
   @board_size Application.get_env(:wtt, :board_size)
   @wall_prob Application.get_env(:wtt, :wall_prob)
 
+  @type tile :: {integer(), integer()}
+
+  @spec generate_walls() :: [tile()]
   def generate_walls() do
     Enum.reduce(1..@board_size, [], fn x, walls ->
       Enum.reduce(1..@board_size, walls, fn y, walls ->
@@ -16,6 +19,7 @@ defmodule Wtt.Board do
     end)
   end
 
+  @spec random_tile([tile()]) :: tile()
   def random_tile(walls) do
     1..@board_size
     |> Stream.flat_map(fn x ->

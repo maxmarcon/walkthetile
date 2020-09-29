@@ -7,22 +7,27 @@ defmodule Wtt.Player do
   @board_size Application.get_env(:wtt, :board_size)
   @msec_to_live_after_killed 5000
 
+  @spec start_link(binary(), (() -> Board.tile())) :: GenServer.on_start()
   def start_link(name, initial_tile \\ &random_tile/0) when is_function(initial_tile, 0) do
     GenServer.start_link(__MODULE__, [name, initial_tile], name: {:global, name})
   end
 
+  @spec move(binary(), :left | :right | :up | :down) :: term()
   def move(name, dir) when dir in [:left, :right, :up, :down] do
     GenServer.call({:global, name}, dir)
   end
 
+  @spec kill(pid()) :: :ok
   def kill(pid) do
     GenServer.cast(pid, :kill)
   end
 
+  @spec attack(binary()) :: term()
   def attack(name) do
     GenServer.call({:global, name}, :attack)
   end
 
+  @spec child_spec([binary() | list()]) :: Supervisor.child_spec()
   def child_spec([name | _] = args) do
     %{
       id: name,
@@ -30,6 +35,7 @@ defmodule Wtt.Player do
     }
   end
 
+  @spec child_spec(binary()) :: Supervisor.child_spec()
   def child_spec(name) do
     child_spec([name])
   end
