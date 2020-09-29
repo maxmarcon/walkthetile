@@ -22,15 +22,15 @@ defmodule Wtt.Player do
   def attack(name) do
     GenServer.call({:global, name}, :attack)
   end
-  
+
   def child_spec([name | _] = args) do
     %{
       id: name,
-      start: {Player, :start_link, args}
+      start: {__MODULE__, :start_link, args}
     }
   end
-  
-  def child_spec(name) do 
+
+  def child_spec(name) do
     child_spec([name])
   end
 
@@ -75,7 +75,7 @@ defmodule Wtt.Player do
   @impl true
   def handle_cast(:kill, state = %{tile: tile}) do
     new_state = %{state | status: :dead}
-    :ok = Registry.register(@registry, tile)
+    :ok = Registry.unregister(@registry, tile)
     {:ok, _} = Registry.register(@registry, tile, Map.delete(new_state, :tile))
 
     {:ok, death_task} =
