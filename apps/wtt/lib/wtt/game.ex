@@ -29,10 +29,21 @@ defmodule Wtt.Game do
     {:ok, walls} = Registry.meta(@registry, :walls)
 
     Registry.select(@registry, [{{:"$1", :_, :"$3"}, [], [%{tile: :"$1", player: :"$3"}]}])
-    |> Enum.reduce(%{}, fn %{tile: tile, player: player}, acc ->
-      Map.update(acc, tile, [player], &[player | &1])
+    |> Enum.concat(Enum.map(walls, &%{tile: &1, wall: true}))
+    |> Enum.group_by(fn %{tile: tile} -> tile end, &Map.delete(&1, :tile))
+    |> Enum.map(fn {tile, entries} -> {tile, reduce_board_elements(entries)} end)
+    |> Enum.map(fn {tile, %{players: players, wall: wall}} ->
+      %{tile: tile, players: players, wall: wall}
     end)
-    |> Enum.map(fn {tile, players} -> %{tile: tile, players: players, wall: false} end)
-    |> Enum.concat(Enum.map(walls, &%{tile: &1, players: [], wall: true}))
+  end
+
+  defp reduce_board_elements(entries) do
+    Enum.reduce(entries, %{players: [], wall: false}, fn
+      %{player: player}, acc ->
+        Map.update!(acc, :players, &[player | &1])
+
+      %{wall: wall}, acc ->
+        Map.update!(acc, :wall, &(&1 || wall))
+    end)
   end
 end
