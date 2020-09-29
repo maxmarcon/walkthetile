@@ -36,7 +36,7 @@ defmodule Wtt.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix_pubsub, "~> 2.0"}
+      {:faker, "~> 0.15"}
     ]
   end
 

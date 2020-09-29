@@ -129,7 +129,8 @@ defmodule Wtt.PlayerTest do
         start_supervised(%{
           id: Player,
           start: {Player, :start_link, [@player1, fn -> {5, 5} end]},
-          restart: :temporary # we want the player to stay dead and not resurrect :) 
+          # we want the player to stay dead and not resurrect :) 
+          restart: :temporary
         })
 
       :ok = Player.kill(pid)
