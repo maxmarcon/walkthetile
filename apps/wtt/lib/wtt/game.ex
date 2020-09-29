@@ -17,5 +17,7 @@ defmodule Wtt.Game do
   def ensure_player_started(), do: ensure_player_started(Faker.Superhero.name())
 
   def retrieve_board_status() do
+    @registry
+    |> Registry.select([{{:"$1", :_, :"$3"}, [], [%{pos: :"$1", player: :"$3"}]}])
   end
 end
