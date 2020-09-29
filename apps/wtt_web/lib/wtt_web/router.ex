@@ -13,6 +13,15 @@ defmodule WttWeb.Router do
     plug :accepts, ["json"]
   end
 
+  scope "/player", WttWeb do
+    pipe_through :api
+
+    put "/:name/move/:dir", PlayerController, :move
+    put "/:name/attack", PlayerController, :attack
+    post "/:name", PlayerController, :create
+    post "/", PlayerController, :create
+  end
+
   scope "/", WttWeb do
     pipe_through :browser
 
