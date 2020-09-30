@@ -40,6 +40,10 @@ defmodule Wtt.PlayerTest do
       assert x >= 1 && x <= @board_size
       assert y >= 1 && y <= @board_size
     end
+
+    test "player can't move in invalid direciton" do
+      assert {:error, :invalid_direction} == Player.move(@player1, :up_and_then_left)
+    end
   end
 
   describe "a player located in the center of the board" do

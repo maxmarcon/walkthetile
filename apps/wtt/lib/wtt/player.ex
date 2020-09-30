@@ -17,6 +17,8 @@ defmodule Wtt.Player do
     GenServer.call({:global, name}, dir)
   end
 
+  def move(_name, _dir), do: {:error, :invalid_direction}
+
   @spec kill(pid()) :: :ok
   def kill(pid) do
     GenServer.cast(pid, :kill)
