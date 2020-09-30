@@ -7,8 +7,6 @@ defmodule WttWeb.Application do
 
   def start(_type, _args) do
     children = [
-      # Start the Telemetry supervisor
-      WttWeb.Telemetry,
       # Start the Endpoint (http/https)
       WttWeb.Endpoint
       # Start a worker by calling: WttWeb.Worker.start_link(arg)
