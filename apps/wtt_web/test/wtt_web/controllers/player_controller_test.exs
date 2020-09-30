@@ -3,6 +3,12 @@ defmodule WttWeb.PlayerControllerTest do
 
   @player_name "MickeyMouse"
 
+  alias Wtt.TestUtils
+
+  setup do
+    on_exit(&TestUtils.terminate_all_players/0)
+  end
+
   test "can create player with random name", %{conn: conn} do
     conn = post(conn, Routes.player_path(conn, :create))
 

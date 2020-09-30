@@ -10,14 +10,10 @@ defmodule Wtt.GameTest do
 
   use ExUnit.Case
 
-  defp terminate_all_players do
-    for {_, pid, _, _} <- DynamicSupervisor.which_children(@supervisor) do
-      :ok = DynamicSupervisor.terminate_child(@supervisor, pid)
-    end
-  end
+  alias Wtt.TestUtils
 
   setup do
-    on_exit(&terminate_all_players/0)
+    on_exit(&TestUtils.terminate_all_players/0)
   end
 
   describe "ensure_player_started/1" do

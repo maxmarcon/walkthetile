@@ -18,15 +18,15 @@ defmodule WttWeb.PlayerController do
     render(conn, :player, %{player: name})
   end
 
-  def move(conn, %{"name" => name, "dir" => dir}) do
+  def move(_conn, %{"name" => name, "dir" => dir}) do
     case Player.move(name, String.to_atom(dir)) do
       :ok -> :ok
       {:error, :invalid_direction} -> {:error, :bad_request}
-      error -> {:error, :internal_server_error}
+      _ -> {:error, :internal_server_error}
     end
   end
 
-  def attack(conn, %{"name" => name}) do
+  def attack(_conn, %{"name" => name}) do
     Player.attack(name)
   end
 end

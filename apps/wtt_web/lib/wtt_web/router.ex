@@ -22,6 +22,12 @@ defmodule WttWeb.Router do
     post "/", PlayerController, :create
   end
 
+  scope "/board", WttWeb do
+    pipe_through :api
+
+    get "/", BoardController, :get
+  end
+
   scope "/", WttWeb do
     pipe_through :browser
 
