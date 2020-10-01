@@ -64,7 +64,7 @@ export default {
     }),
     mounted() {
         this.initPlayer(this.$route.query.player || undefined)
-        setInterval(this.updateBoard, 1000)
+        setInterval(this.updateBoard, 200)
     },
     methods: {
         playerClass(player) {
