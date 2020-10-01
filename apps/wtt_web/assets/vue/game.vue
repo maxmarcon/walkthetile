@@ -92,11 +92,6 @@ export default {
         boardElem(x, y) {
             return this.board[boardIndex(x, y)]
         },
-        players(x, y) {
-            return Array.from(this.boardElem(x, y).players).sort((p1, p2) =>
-                p1.name === this.player ? -1 : p1.name < p2.name
-            )
-        },
         async initPlayer(player = "") {
             const playerResponse = await this.axios.post(`/player/${player}`)
             this.player = playerResponse.data.player
