@@ -10,7 +10,7 @@ defmodule Wtt.Board do
   def generate_walls() do
     Enum.reduce(1..@board_size, [], fn x, walls ->
       Enum.reduce(1..@board_size, walls, fn y, walls ->
-        if :random.uniform() < @wall_prob do
+        if :rand.uniform() < @wall_prob do
           [{x, y} | walls]
         else
           walls
