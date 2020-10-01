@@ -23,8 +23,6 @@
     "@babel/core": "^7.0.0",
     "@babel/preset-env": "^7.0.0",
     "babel-loader": "^8.0.0",
-    "babel-plugin-transform-regenerator": "^6.26.0",
-    "babel-polyfill": "^6.26.0",
     "copy-webpack-plugin": "^5.1.1",
     "css-loader": "^3.4.2",
     "hard-source-webpack-plugin": "^0.13.1",
