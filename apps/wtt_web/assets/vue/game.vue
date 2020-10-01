@@ -1,8 +1,8 @@
 <template>
     <div class="container-fluid">
-        <div v-for="row in boardSize" class="row">
-            <div v-for="col in boardSize" class="col">
-                    T
+        <div v-for="row in boardSize" class="row border-left border-top  border-bottom border-dark">
+            <div v-for="col in boardSize" class=" col border-right border-dark text-break">
+                
             </div>
         </div>
     </div>
@@ -19,6 +19,7 @@ export default {
         })
     }),
     mounted() {
+        this.axios.get("/board")
     }
 
 }

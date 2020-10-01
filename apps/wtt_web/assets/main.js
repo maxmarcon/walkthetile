@@ -1,11 +1,15 @@
-import VueApp from './vue/app.vue'
+import Game from './vue/game.vue'
 import Vue from 'vue'
+import axios from 'axios'
+import VueAxios from 'vue-axios'
 import 'bootstrap'
+
+import './styles/main.scss'
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-Vue.component('app', VueApp)
+Vue.use(VueAxios, axios)
 
 new Vue({
-    render: h => h(VueApp),
+    render: h => h(Game),
     el: "#app"
 })
