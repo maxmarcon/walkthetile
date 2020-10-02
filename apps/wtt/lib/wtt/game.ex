@@ -37,10 +37,10 @@ defmodule Wtt.Game do
     end)
   end
 
-  defp reduce_board_elements(entries) do
-    Enum.reduce(entries, %{players: [], wall: false}, fn
+  defp reduce_board_elements(elements) do
+    Enum.reduce(elements, %{players: [], wall: false}, fn
       %{player: player}, acc ->
-        Map.update!(acc, :players, &[player | &1])
+        Map.update!(acc, :players, &[Map.take(player, [:status, :name]) | &1])
 
       %{wall: wall}, acc ->
         Map.update!(acc, :wall, &(&1 || wall))
