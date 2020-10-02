@@ -8,6 +8,7 @@ defmodule WttWeb.Application do
   def start(_type, _args) do
     children = [
       # Start the Endpoint (http/https)
+      {Phoenix.PubSub, name: Wtt.PubSub},
       WttWeb.Endpoint
       # Start a worker by calling: WttWeb.Worker.start_link(arg)
       # {WttWeb.Worker, arg}

@@ -8,7 +8,6 @@ defmodule Wtt.Application do
 
   def start(_type, _args) do
     children = [
-      {Phoenix.PubSub, name: Wtt.PubSub},
       {Registry, keys: :duplicate, meta: board_registry_metadata(), name: Wtt.Registry.Board},
       {DynamicSupervisor, strategy: :one_for_one, max_restarts: 1000, name: Wtt.PlayerSupervisor}
     ]
