@@ -2,7 +2,7 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-1 text-center">
-                <p v-if="player" class="text-success">Your hero's name is {{ player }}</p>
+                <p v-if="player">Your hero's name is <span class="badge-success badge">{{ player }}</span></p>
                 <div class="d-flex justify-content-center">
                     <button type="button" class="m-2 btn btn-sm btn-primary" @click="move('up')">
                         Up
@@ -21,7 +21,19 @@
                         Down
                     </button>
                 </div>
-                <button type="button" class="btn btn-primary" @click="attack()">Attack</button>
+                <button type="button" class="btn btn-primary" @click="attack()">Attack!</button>
+                    <html lang="en">
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport"
+                              content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+                        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+                        <title>Document</title>
+                    </head>
+                    <body>
+                    
+                    </body>
+                    </html></button>
             </div>
             <div class="col-11">
                 <div v-for="row in boardSize" class="d-flex border-left border-top border-dark"
