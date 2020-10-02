@@ -46,7 +46,7 @@ defmodule Wtt.Player do
   def init([name, initial_tile]) when is_function(initial_tile) do
     {:ok, move_to_initial_tile(initial_tile.(), %{name: name, status: :alive})}
   end
-  
+
   @impl true
   def handle_call(_, _, %{status: :dead} = state) do
     {:reply, :ok, state}
@@ -89,7 +89,7 @@ defmodule Wtt.Player do
   def handle_cast(_, %{status: :dead} = state) do
     {:noreply, state}
   end
-  
+
   @impl true
   def handle_cast(:kill, state = %{tile: tile}) do
     new_state = %{state | status: :dead}

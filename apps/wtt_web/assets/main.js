@@ -12,7 +12,7 @@ Vue.use(VueRouter)
 Vue.use(VueAxios, axios)
 
 const routes = [
-    { path: '/', component: Game }
+    { path: '/game', component: Game }
 ]
 
 const router = new VueRouter({
