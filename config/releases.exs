@@ -14,7 +14,7 @@ config :wtt_web, WttWeb.Endpoint,
   ],
   url: [
     host: System.fetch_env!("URL_HOST"),
-    port: System.fetch_env("URL_PORT"),
+    port: System.fetch_env("URL_PORT", "443"),
     scheme: System.get_env("URL_SCHEME", "https")
   ],
   server: true,
