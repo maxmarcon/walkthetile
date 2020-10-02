@@ -31,7 +31,8 @@ defmodule WttWeb.Router do
   scope "/", WttWeb do
     pipe_through :browser
 
-    get "/*path", PageController, :index
+    get "/game", PageController, :index
+    get "/*path", PageController, :redirect_to_game
   end
 
   # Other scopes may use custom stacks.
