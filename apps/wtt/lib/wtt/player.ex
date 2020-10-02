@@ -46,6 +46,11 @@ defmodule Wtt.Player do
   def init([name, initial_tile]) when is_function(initial_tile) do
     {:ok, move_to_initial_tile(initial_tile.(), %{name: name, status: :alive})}
   end
+  
+  @impl true
+  def handle_call(_, _, %{status: :dead} = state) do
+    {:reply, :ok, state}
+  end
 
   @impl true
   def handle_call(:up, _from, state = %{tile: {x, y}}) do
@@ -81,6 +86,11 @@ defmodule Wtt.Player do
   end
 
   @impl true
+  def handle_cast(_, %{status: :dead} = state) do
+    {:noreply, state}
+  end
+  
+  @impl true
   def handle_cast(:kill, state = %{tile: tile}) do
     new_state = %{state | status: :dead}
     :ok = Registry.unregister(@registry, tile)
@@ -104,7 +114,7 @@ defmodule Wtt.Player do
   end
 
   defp move_to_new_tile(new_tile, state = %{name: name, status: status, tile: tile}) do
-    if valid_tile?(new_tile) && status == :alive do
+    if valid_tile?(new_tile) do
       :ok = Registry.unregister(@registry, tile)
       {:ok, _} = Registry.register(@registry, new_tile, %{name: name, status: status})
       %{state | tile: new_tile}
