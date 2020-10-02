@@ -12,5 +12,10 @@ config :wtt_web, WttWeb.Endpoint,
     port: String.to_integer(System.get_env("PORT") || "4000"),
     transport_options: [socket_opts: [:inet6]]
   ],
+  url: [
+    host: System.fetch_env!("URL_HOST_NAME"),
+    port: System.fetch_env!("URL_HOST_PORT"),
+    scheme: :https
+  ],
   server: true,
   secret_key_base: secret_key_base
