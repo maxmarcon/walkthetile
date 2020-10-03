@@ -1,4 +1,3 @@
-# app_root/compile
 cd $phoenix_dir
 yarn --cwd assets deploy
 mix "${phoenix_ex}.digest"

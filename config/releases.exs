@@ -13,9 +13,9 @@ config :wtt_web, WttWeb.Endpoint,
     transport_options: [socket_opts: [:inet6]]
   ],
   url: [
-    host: System.fetch_env!("URL_HOST"),
-    port: System.get_env("URL_PORT", "443"),
-    scheme: System.get_env("URL_SCHEME", "https")
+    host: System.get_env("URL_HOST", "localhost"),
+    port: System.get_env("URL_PORT", "4000"),
+    scheme: System.get_env("URL_SCHEME", "http")
   ],
   server: true,
   secret_key_base: secret_key_base
