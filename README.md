@@ -52,6 +52,6 @@ The app does not include front-end unit tests, as this was not the focus of the 
 1. `MIX_ENV=prod mix release`
 1. `SECRET_KEY_BASE=$(mix phx.gen.secret) _build/prod/rel/wtt/bin/wtt start`
 
-
+A live production release is available at: https://walkthetile.herokuapp.com
 
  

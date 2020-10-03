@@ -13,19 +13,14 @@ defmodule WttWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/player", WttWeb do
+  scope "/api", WttWeb do
     pipe_through :api
 
-    put "/:name/move/:dir", PlayerController, :move
-    put "/:name/attack", PlayerController, :attack
-    post "/:name", PlayerController, :create
-    post "/", PlayerController, :create
-  end
-
-  scope "/board", WttWeb do
-    pipe_through :api
-
-    get "/", BoardController, :get
+    put "/player/:name/move/:dir", PlayerController, :move
+    put "/player/:name/attack", PlayerController, :attack
+    post "/player/:name", PlayerController, :create
+    post "/player/", PlayerController, :create
+    get "/board", BoardController, :get
   end
 
   scope "/", WttWeb do
@@ -34,9 +29,4 @@ defmodule WttWeb.Router do
     get "/game", PageController, :index
     get "/*path", PageController, :redirect_to_game
   end
-
-  # Other scopes may use custom stacks.
-  # scope "/api", WttWeb do
-  #   pipe_through :api
-  # end
 end

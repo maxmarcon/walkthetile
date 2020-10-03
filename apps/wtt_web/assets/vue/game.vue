@@ -95,17 +95,17 @@ export default {
             return this.board[boardIndex(x, y)]
         },
         async initPlayer(player) {
-            const playerResponse = await this.axios.post(`/player/${player ? player : ''}`)
+            const playerResponse = await this.axios.post(`api/player/${player ? player : ''}`)
             this.player = playerResponse.data.player
             if (this.player !== player) {
                 await this.$router.push({query: {name: this.player}})
             }
         },
         move(dir) {
-            this.axios.put(`/player/${this.player}/move/${dir}`)
+            this.axios.put(`api/player/${this.player}/move/${dir}`)
         },
         attack() {
-            this.axios.put(`/player/${this.player}/attack`)
+            this.axios.put(`api/player/${this.player}/attack`)
         },
         async updateBoard() {
             for (let i in this.board) {
@@ -115,7 +115,7 @@ export default {
                 }
             }
 
-            const response = await this.axios.get("/board")
+            const response = await this.axios.get("api/board")
 
             for (let board_el of response.data) {
                 const {tile: [x, y]} = board_el
