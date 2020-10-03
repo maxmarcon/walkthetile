@@ -81,7 +81,7 @@ export default {
         },
         tileClasses(x, y) {
             const tile = this.boardElem(x, y)
-            return tile.wall ? 'bg-danger' : ''
+            return tile.wall ? 'bg-dark' : ''
         },
         myPlayer(x, y) {
             return this.boardElem(x, y).players
