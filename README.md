@@ -15,8 +15,8 @@ name will be generated for you.
 
 ### Requirements:
 
-* Elixir
-* Yarn
+* Elixir (built and tested with 1.10.2)
+* Yarn (built and tested with 1.22.4, node version 13.7.0)
 
 ### Installing dependencies
 
